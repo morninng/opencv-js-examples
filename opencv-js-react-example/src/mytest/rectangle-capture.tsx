@@ -7,7 +7,7 @@ const canvasSize = { w: 360, h: 240 };
 const resolution = { w: 1080, h: 720 };
 
 
-export function CameraCantour() {
+export function RectangleCapture() {
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
