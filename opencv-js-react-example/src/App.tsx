@@ -1,6 +1,6 @@
 import "./App.css";
 import TestPage from "./opencv/TestPage";
-import { Aaa } from "./mytest/aaa";
+import { Aaa } from "./mytest/camera-cantour";
 
 function App() {
   return (
