@@ -51,7 +51,7 @@ export function CameraCantour() {
         setInterval(()=>{
           if(videoRef.current){
             aaa.drawImage(videoRef.current, 0, 0, canvasSize.w, canvasSize.h);
-            requestAnimationFrame(_canvasUpdate);
+            // requestAnimationFrame(_canvasUpdate);
             canvasAnalyze(aaa);
           }
         }, 100);

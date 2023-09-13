@@ -51,10 +51,10 @@ export function RectangleCapture() {
         setInterval(()=>{
           if(videoRef.current){
             aaa.drawImage(videoRef.current, 0, 0, canvasSize.w, canvasSize.h);
-            requestAnimationFrame(_canvasUpdate);
+            // requestAnimationFrame(_canvasUpdate);
             canvasAnalyze(aaa);
           }
-        }, 100);
+        }, 5000);
       }
 
 
@@ -100,6 +100,30 @@ export function RectangleCapture() {
       cv.cvtColor(src, imgGray, cv.COLOR_BGR2GRAY);
       const edges = new cv.Mat();
       cv.Canny(imgGray, edges, 50, 150);
+
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+
+      cv.findContours(src, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_TC89_L1);
+      console.log("contours", contours);
+      // for (let i = 0; i < contours.size(); i++) {
+      //   // ある程度のサイズ以上の輪郭のみ処理
+      //   const area = cv.contourArea(contours.get(i), false);
+      //   if (area > 15000) {
+      //     let approx = new cv.Mat();
+      //     // cv.Matは行列で、幅1, 高さ4のものが4頂点に近似できた範囲になる
+      //     cv.approxPolyDP(contours.get(i), approx, 0.01 * cv.arcLength(contours.get(i), true), true);
+      //     if (approx.size().width === 1 && approx.size().height === 4) {
+      //       // 四角形に近似できる領域は赤で輪郭線描画
+      //       cv.drawContours(src, contours, i, new cv.Scalar(255, 0, 0, 255), 4, cv.LINE_8, hierarchy, 100);
+      //     } else {
+      //       // それ以外の輪郭は緑で描画
+      //       cv.drawContours(src, contours, i, new cv.Scalar(0, 255, 0, 255), 1, cv.LINE_8, hierarchy, 100);
+      //     }
+      //     approx.delete();
+      //   }
+      // }
+
 
       if(convertedCanvasRef.current){
         cv.imshow(convertedCanvasRef.current, edges);
