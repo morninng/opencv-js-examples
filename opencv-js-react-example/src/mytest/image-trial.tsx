@@ -1,6 +1,6 @@
 
 import React, {useEffect, useRef, useState} from 'react';
-import cv from "@techstark/opencv-js";
+import cv, { set } from "@techstark/opencv-js";
 
 const cameraSize = { w: 360, h: 240 };
 const canvasSize = { w: 360, h: 240 };
@@ -22,13 +22,15 @@ export function ImageTrial() {
       canvasRef.current.height = canvasSize.h;
       const context = canvasRef.current.getContext('2d');
       if(context){
-
         var img = new Image();
 
         img.src = './receipt2.png';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
-          canvasAnalyze(context);
+          // canvasAnalyze(context);
+          setTimeout(()=>{
+            canvasAnalyze2();
+          }, 100);
         }
         img.onerror = function onImageError(err) {
           console.log("ereror", err)
@@ -51,42 +53,43 @@ export function ImageTrial() {
 
   }, [])
 
+  const canvasAnalyze2 = () => {
+    console.log("canvasAnalyze2");
+    if(canvasRef.current){
+      const src =  cv.imread(canvasRef.current);
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
 
-
-  const canvasAnalyze = (context: CanvasRenderingContext2D) => {
-    console.log("canvasAnalyze");
-    if(context){
-      console.log("sss");
-      let imgData = context.getImageData(0, 0, canvasSize.w, canvasSize.h);
-      let src = cv.matFromImageData(imgData);
-
-      const imgGray = new cv.Mat();
-      cv.cvtColor(src, imgGray, cv.COLOR_BGR2GRAY);
       const edges = new cv.Mat();
-      cv.Canny(imgGray, edges, 50, 150);
+      src.copyTo(edges);
 
       if(convertedCanvasRef.current){
         cv.imshow(convertedCanvasRef.current, edges);
       }
       src.delete();
-      imgGray.delete();
+      dst.delete();
       edges.delete();
-
+      contours.delete();
+      hierarchy.delete();
 
     }
-
   }
 
 
   return (
     <div>
-      eee
+
     <br />
+    original
       <canvas  ref={canvasRef} />
     <br />
-    jj
+    converted
       <canvas  ref={convertedCanvasRef} />
-      kk
+
 
     </div>
   )
