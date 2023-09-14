@@ -1,6 +1,6 @@
 
 import React, {useEffect, useRef, useState} from 'react';
-import cv, { set } from "@techstark/opencv-js";
+import cv, { set, Mat } from "@techstark/opencv-js";
 
 const canvasSize = { w: 360, h: 240 };
 
@@ -27,7 +27,9 @@ export function CoreBasicOperation() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           // canvasAnalyze(context);
           setTimeout(()=>{
-            canvasAnalyze2();
+            // showMatInfo();
+            // copyMat()
+            convertMat()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -51,29 +53,40 @@ export function CoreBasicOperation() {
 
   }, [])
 
-  const canvasAnalyze2 = () => {
+  const showMatInfo = () => {
     console.log("canvasAnalyze2");
     if(canvasRef.current){
-      const src =  cv.imread(canvasRef.current);
-      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-      cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
-      let contours = new cv.MatVector();
-      let hierarchy = new cv.Mat();
-      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
-
-      const edges = new cv.Mat();
-      src.copyTo(edges);
-
+      const src: Mat =  cv.imread(canvasRef.current); // この
+      console.log('image width: ', src.cols)
+      console.log('src.depth ', src.depth())
+      console.log('src.size() ', src.size())
+      console.log('src.size().width ', src.size().width)
+      console.log('src.size().height ', src.size().height)
+      console.log('src.channels() ', src.channels())
+      console.log('src.type() ', src.type())
+    }
+  }
+  const copyMat = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current); // この
+      let dst = src.clone();
+      const mask = new cv.Mat();
+      src.copyTo(dst, mask);
       if(convertedCanvasRef.current){
-        cv.imshow(convertedCanvasRef.current, edges);
+        cv.imshow(convertedCanvasRef.current, dst);
       }
-      src.delete();
-      dst.delete();
-      edges.delete();
-      contours.delete();
-      hierarchy.delete();
+    }
+  }
 
+
+  const convertMat = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current); // この
+      let dst = src.clone();
+      src.convertTo(dst, 1);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
     }
   }
 
