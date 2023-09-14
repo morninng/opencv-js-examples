@@ -22,7 +22,7 @@ export function CoreBasicOperation() {
       if(context){
         var img = new Image();
 
-        img.src = './receipt2.png';
+        img.src = './english.jpg';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           // canvasAnalyze(context);
@@ -31,7 +31,8 @@ export function CoreBasicOperation() {
             // copyMat()
             // convertMat()
             // executeMatVector()
-            roi()
+            // roi()
+            splitAndMergeImageChannels()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -156,6 +157,34 @@ export function CoreBasicOperation() {
       if(convertedCanvasRef.current){
         cv.imshow(convertedCanvasRef.current, dst);  // 値を変更したものが描画されている
       }
+    }
+  }
+
+
+  // https://tomomai.com/python-opencv-split-numpy-concatenate/
+  const splitAndMergeImageChannels = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let rgbaPlanes = new cv.MatVector();
+      cv.split(src, rgbaPlanes);
+      let R = rgbaPlanes.get(0);
+      let nonR = cv.Mat.zeros(R.rows, R.cols, R.type());
+      let G = rgbaPlanes.get(1);
+      let B = rgbaPlanes.get(2);
+      let A = rgbaPlanes.get(3);
+      let matVec = new cv.MatVector();
+      // matVec.push_back(R)
+      // const blank = new cv.Mat();
+      matVec.push_back(nonR)
+      matVec.push_back(G)
+      matVec.push_back(B)
+      let dst = new cv.Mat();
+      cv.merge(matVec, dst);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete(); rgbaPlanes.delete();
+
     }
   }
 
