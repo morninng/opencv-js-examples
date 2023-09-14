@@ -31,7 +31,7 @@ export function CoreBasicOperation() {
             // copyMat()
             // convertMat()
             // executeMatVector()
-            acceessAndModifyPixelValue()
+            roi()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -143,6 +143,19 @@ export function CoreBasicOperation() {
         }
       }
 
+    }
+  }
+
+  const roi = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      // You can try more different parameters
+      let rect = new cv.Rect(200, 50, 100, 100);
+      dst = src.roi(rect);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);  // 値を変更したものが描画されている
+      }
     }
   }
 
