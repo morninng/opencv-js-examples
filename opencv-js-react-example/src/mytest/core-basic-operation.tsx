@@ -32,7 +32,8 @@ export function CoreBasicOperation() {
             // convertMat()
             // executeMatVector()
             // roi()
-            splitAndMergeImageChannels()
+            // splitAndMergeImageChannels()
+            paddingImage()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -186,6 +187,22 @@ export function CoreBasicOperation() {
       src.delete(); rgbaPlanes.delete();
 
     }
+  }
+
+  const paddingImage = () => {
+
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      let s = new cv.Scalar(255, 0, 0, 255);
+      cv.copyMakeBorder(src, dst, 10, 10, 10, 10, cv.BORDER_CONSTANT, s);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete();
+      dst.delete();
+    }
+
   }
 
 
