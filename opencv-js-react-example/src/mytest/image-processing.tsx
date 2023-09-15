@@ -49,7 +49,8 @@ export function ImageProcessing() {
 
             // convertColor()
             // inRangeColor()
-            resizeImage()
+            // resizeImage()
+            affineTransition()
 
           }, 100);
         }
@@ -98,13 +99,28 @@ export function ImageProcessing() {
 
   const resizeImage = () => {
     if(canvasRef.current){
-      const src: Mat =  cv.imread(canvasRef.current); // この
+      const src: Mat =  cv.imread(canvasRef.current);
       const dst = new Mat();
       const dsize = new cv.Size(100, 100);
       cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
       if(convertedCanvasRef.current){
         cv.imshow(convertedCanvasRef.current, dst);
       }
+    }
+  }
+
+  const affineTransition = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      let M = cv.matFromArray(2, 3, cv.CV_64FC1, [1, 0, 50, 0, 1, 100]);
+      let dsize = new cv.Size(src.cols, src.rows );
+      // You can try more different parameters
+      cv.warpAffine(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete(); dst.delete(); M.delete();
     }
   }
 
