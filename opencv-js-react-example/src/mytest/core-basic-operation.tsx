@@ -33,7 +33,8 @@ export function CoreBasicOperation() {
             // executeMatVector()
             // roi()
             // splitAndMergeImageChannels()
-            paddingImage()
+            // paddingImage()
+            imageAddition()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -202,6 +203,20 @@ export function CoreBasicOperation() {
       src.delete();
       dst.delete();
     }
+  }
+
+  const imageAddition = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current); // 本当は二つの別の画像をやりたいがないので代用
+      let dst = new cv.Mat();
+      let mask = new cv.Mat();
+      let dtype = -1;  // dtypeはデータ型を指定する変数で、このコードでは-1としています。-1を指定すると、出力画像のデータ型が入力画像のデータ型と同じ
+      cv.add(src, src, dst, mask, dtype); // src1とsrc2の画像を加算し、結果をdstに格納します。maskとdtypeは省略可能なパラメータで、マスク画像とデータ型を指定するために使用されます
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+
 
   }
 
