@@ -93,7 +93,10 @@ export function CameraCantour() {
     console.log("canvasAnalyze");
     if(context){
       console.log("sss");
+      // create image data object from canvas
       let imgData = context.getImageData(0, 0, canvasSize.w, canvasSize.h);
+
+      // construct cv.Mat
       let src = cv.matFromImageData(imgData);
 
       const imgGray = new cv.Mat();

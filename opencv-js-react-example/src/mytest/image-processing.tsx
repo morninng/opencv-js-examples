@@ -47,7 +47,8 @@ export function ImageProcessing() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
 
-            convertColor()
+            // convertColor()
+            inRangeColor()
 
           }, 100);
         }
@@ -80,6 +81,19 @@ export function ImageProcessing() {
     }
   }
 
+  const inRangeColor = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current); // この
+      const dst = new Mat();
+      let low = new cv.Mat(src.rows, src.cols, src.type(), [130, 0, 0, 0]);
+      let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 150, 150, 255]); // 赤っぽい色
+
+      cv.inRange(src, low, high, dst);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
 
 
   return (
