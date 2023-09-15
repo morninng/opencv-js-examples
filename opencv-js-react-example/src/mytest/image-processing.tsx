@@ -48,7 +48,8 @@ export function ImageProcessing() {
           setTimeout(()=>{
 
             // convertColor()
-            inRangeColor()
+            // inRangeColor()
+            resizeImage()
 
           }, 100);
         }
@@ -95,6 +96,17 @@ export function ImageProcessing() {
     }
   }
 
+  const resizeImage = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current); // この
+      const dst = new Mat();
+      const dsize = new cv.Size(100, 100);
+      cv.resize(src, dst, dsize, 0, 0, cv.INTER_AREA);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
 
   return (
     <div>
