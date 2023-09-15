@@ -55,7 +55,10 @@ export function CoreBasicOperation() {
             // splitAndMergeImageChannels()
             // paddingImage()
             // imageAddition()
-            imageBitwise()
+            // imageBitwise()
+            // cvtColor()
+            // transform()
+            threshold()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -238,6 +241,82 @@ export function CoreBasicOperation() {
       }
     }
   }
+
+  const cvtColor = () => {
+
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY, 0);
+
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
+
+  // この例でいうと、THRESHOLD_CRITERIA に 100を指定しているが、
+  // そこで指定した値が何かが大きなポイント。
+  // 初期に、レシートのメインになる領域の色を調べて、それ以外の色のところを真っ黒にしてしまうなどをすれば関係ない部分をはじける
+  // レシートには影が入ることもあると思うのでopacityのところは変わる。だが、基本的な色味は変わらないはずなので、
+  // 色味が違うところをまず弾くというのがいいかもしれない。
+  // レシートの色、レシートの影部分の色というのに、どういうRGBの傾向があるかを調べる。
+  // 中央の領域で、黒いような部分を削除し、その中央値にあるような場所を基本の色としたあとに、
+  // grayにしたら白っぽい（つまり影ではないところ）を基本の色として考えるのがいいかなと。
+  // vectorにしてそれぞれの色を別々にしたもので、gray化けるしたら、その色のなかでの傾向がわかるはず。
+  const threshold = () => {
+
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      let grayedMat = new cv.Mat();
+      let thresholdMat = new cv.Mat();
+      let maskInv = new cv.Mat();
+      let roi = new cv.Mat();
+      let imgBg = new cv.Mat();
+
+      const THRESHOLD_CRITERIA = 100;
+
+      // 画像をカラーからグレースケールに変換
+      // cv.COLOR_RGBA2GRAYは、RGBA（赤、緑、青、アルファ）カラースペースからグレースケールへの変換を示す定数
+      cv.cvtColor(src, grayedMat, cv.COLOR_RGBA2GRAY, 0);
+
+      // 指定したしきい値（ここでは100）を超えるピクセル値を255に設定し、
+      // それ未満のピクセル値を0に設定します。この操作により、ロゴの形状が白い領域（255）として強調され、
+      // 背景は黒い領域（0）として抽出されます
+      cv.threshold(grayedMat, thresholdMat,THRESHOLD_CRITERIA, 255, cv.THRESH_BINARY);
+      // cv.bitwise_not(thresholdMat, maskInv);
+      // cv.bitwise_and(roi, roi, imgBg, maskInv);
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, thresholdMat);
+      }
+    }
+  }
+
+  // ここまだできてない。
+  // http://opencv.jp/opencv-2.1/cpp/geometric_image_transformations.html
+  // const transform = () => {
+
+  //   if(canvasRef.current){
+  //     const src: Mat =  cv.imread(canvasRef.current);
+  //     let dst = new cv.Mat();
+  //     const customMatrix = [
+  //       0.2989, 0.5870, 0.1140, 0, 0,
+  //       0.2989, 0.5870, 0.1140, 0, 0,
+  //       0.2989, 0.5870, 0.1140, 0, 0,
+  //       0, 0, 0, 1, 0
+  //     ];
+  //     const customMatrix2 = new cv.Mat(customMatrix, new cv.Size(3, 3), cv.CV_32F)
+  //     // const customMatrix2 = new cv.Mat(customMatrix, new cv.Size(4, 4), cv.CV_32F);
+
+  //     cv.transform(src, dst, customMatrix2);
+  //     if(convertedCanvasRef.current){
+  //       cv.imshow(convertedCanvasRef.current, dst);
+  //     }
+  //   }
+  // }
+
 
 
   const imageBitwise = () => {
