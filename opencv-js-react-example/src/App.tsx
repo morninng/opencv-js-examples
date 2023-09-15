@@ -4,6 +4,7 @@ import { CameraCantour } from "./mytest/camera-cantour";
 import { RectangleCapture } from "./mytest/rectangle-capture";
 import { ImageTrial } from "./mytest/image-trial";
 import { CoreBasicOperation } from "./mytest/core-basic-operation";
+import { ImageProcessing } from "./mytest/image-processing";
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
       {/* <CameraCantour /> */}
       {/* <RectangleCapture /> */}
       {/* <ImageTrial /> */}
-      <CoreBasicOperation />
+      {/* <CoreBasicOperation /> */}
+      <ImageProcessing />
     </div>
   );
 }
