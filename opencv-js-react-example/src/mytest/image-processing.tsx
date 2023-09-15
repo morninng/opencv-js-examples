@@ -50,7 +50,8 @@ export function ImageProcessing() {
             // convertColor()
             // inRangeColor()
             // resizeImage()
-            affineTransition()
+            // affineTransition()
+            affineTransitionRotate()
 
           }, 100);
         }
@@ -121,6 +122,24 @@ export function ImageProcessing() {
         cv.imshow(convertedCanvasRef.current, dst);
       }
       src.delete(); dst.delete(); M.delete();
+    }
+  }
+  const affineTransitionRotate = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      // let dsize = new cv.Size(src.rows, src.cols);
+      let dsize = new cv.Size(src.cols, src.rows );
+      let center = new cv.Point(src.cols / 2, src.rows / 2);
+      // You can try more different parameters
+      let M = cv.getRotationMatrix2D(center, 45, 1);
+      cv.warpAffine(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete(); dst.delete(); M.delete();
+
+
     }
   }
 
