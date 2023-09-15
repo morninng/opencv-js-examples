@@ -3,16 +3,36 @@ import React, {useEffect, useRef, useState} from 'react';
 import cv, { set, Mat } from "@techstark/opencv-js";
 
 const canvasSize = { w: 360, h: 240 };
+const logoSize = { w: 100, h: 100 };
 
 
 export function CoreBasicOperation() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const logoCanvasRef = useRef<HTMLCanvasElement>(null)
   const convertedCanvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(()=>{
     console.log("useEffect");
 
+    if(logoCanvasRef.current){
+      logoCanvasRef.current.id     = 'logoCanvas';
+      logoCanvasRef.current.width  = logoSize.w;
+      logoCanvasRef.current.height = logoSize.h;
+      const logoContext = logoCanvasRef.current.getContext('2d');
+      if(logoContext){
+        var imgLogo = new Image();
+        imgLogo.src = './logo.png';
+        imgLogo.onload = function onImageLoad() {
+          console.log("onImageLoad logo");
+          logoContext.drawImage(imgLogo, 0, 0, logoSize.w, logoSize.h);
+
+        }
+        imgLogo.onerror = function onImageError(err) {
+          console.log("ereror", err)
+        }
+      }
+    }
 
     if(canvasRef.current){
       canvasRef.current.id     = 'canvas';
@@ -34,7 +54,8 @@ export function CoreBasicOperation() {
             // roi()
             // splitAndMergeImageChannels()
             // paddingImage()
-            imageAddition()
+            // imageAddition()
+            imageBitwise()
           }, 100);
         }
         img.onerror = function onImageError(err) {
@@ -216,8 +237,53 @@ export function CoreBasicOperation() {
         cv.imshow(convertedCanvasRef.current, dst);
       }
     }
+  }
 
 
+  const imageBitwise = () => {
+    if(canvasRef.current && logoCanvasRef.current){
+
+      let src = cv.imread(canvasRef.current);
+      let logo = cv.imread(logoCanvasRef.current);
+      // Matオブジェクトは、行列形式で画像データを保持するためのもので、後で各種操作に使用されます。
+      let dst = new cv.Mat();
+      let roi = new cv.Mat();
+      let mask = new cv.Mat();
+      let maskInv = new cv.Mat();
+      let imgBg = new cv.Mat();
+      let imgFg = new cv.Mat();
+      let sum = new cv.Mat();
+      let rect = new cv.Rect(0, 0, logo.cols, logo.rows);
+
+      // I want to put logo on top-left corner, So I create a ROI
+      roi = src.roi(rect);
+
+      // Create a mask of logo and create its inverse mask also
+      cv.cvtColor(logo, mask, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(mask, mask, 100, 255, cv.THRESH_BINARY);
+      cv.bitwise_not(mask, maskInv);
+
+      // Black-out the area of logo in ROI
+      cv.bitwise_and(roi, roi, imgBg, maskInv);
+
+      // Take only region of logo from logo image
+      cv.bitwise_and(logo, logo, imgFg, mask);
+
+      // Put logo in ROI and modify the main image
+      cv.add(imgBg, imgFg, sum);
+
+      dst = src.clone();
+      for (let i = 0; i < logo.rows; i++) {
+          for (let j = 0; j < logo.cols; j++) {
+              dst.ucharPtr(i, j)[0] = sum.ucharPtr(i, j)[0];
+          }
+      }
+      if(convertedCanvasRef.current){
+      cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete(); dst.delete(); logo.delete(); roi.delete(); mask.delete();
+      maskInv.delete(); imgBg.delete(); imgFg.delete(); sum.delete();
+    }
   }
 
 
@@ -230,6 +296,10 @@ export function CoreBasicOperation() {
     <br />
     convert
       <canvas  ref={convertedCanvasRef} />
+      <br />
+
+      logoCanvasRef
+      <canvas  ref={logoCanvasRef} />
 
 
     </div>
