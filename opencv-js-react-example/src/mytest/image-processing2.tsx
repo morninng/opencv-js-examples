@@ -48,7 +48,9 @@ export function ImageThresholding2() {
           setTimeout(()=>{
 
             // threshold()
-            adaptiveThreshold()
+            // adaptiveThreshold()
+            // smoothingFilter()
+            smoothingGaussianBlur()
 
           }, 100);
         }
@@ -116,6 +118,37 @@ export function ImageThresholding2() {
       src.delete();
       dst.delete();
     }
+}
+
+const smoothingFilter = () => {
+  if(canvasRef.current){
+    const src: Mat =  cv.imread(canvasRef.current);
+
+    let dst = new cv.Mat();
+    let M = cv.Mat.eye(3, 3, cv.CV_32FC1);
+    let anchor = new cv.Point(-1, -1);
+    // You can try more different parameters
+    cv.filter2D(src, dst, cv.CV_8U, M, anchor, 0, cv.BORDER_DEFAULT);
+    if(convertedCanvasRef.current){
+      cv.imshow(convertedCanvasRef.current, dst);
+    }
+  }
+
+}
+
+const smoothingGaussianBlur = () => {
+  if(canvasRef.current){
+    const src: Mat =  cv.imread(canvasRef.current);
+
+    let dst = new cv.Mat();
+    let ksize = new cv.Size(17, 17);
+    // You can try more different parameters
+    cv.GaussianBlur(src, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+    if(convertedCanvasRef.current){
+      cv.imshow(convertedCanvasRef.current, dst);
+    }
+  }
+
 }
 
 
