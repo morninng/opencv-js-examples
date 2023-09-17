@@ -50,7 +50,9 @@ export function ImageThresholding2() {
             // threshold()
             // adaptiveThreshold()
             // smoothingFilter()
-            smoothingGaussianBlur()
+            // smoothingGaussianBlur()
+            // smoothingMedianBlur()
+            smoothingBirateralFilter()
 
           }, 100);
         }
@@ -144,6 +146,35 @@ const smoothingGaussianBlur = () => {
     let ksize = new cv.Size(17, 17);
     // You can try more different parameters
     cv.GaussianBlur(src, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+    if(convertedCanvasRef.current){
+      cv.imshow(convertedCanvasRef.current, dst);
+    }
+  }
+
+}
+
+const smoothingMedianBlur = () => {
+  if(canvasRef.current){
+    const src: Mat =  cv.imread(canvasRef.current);
+
+    let dst = new cv.Mat();
+    cv.medianBlur(src, dst, 77);
+    if(convertedCanvasRef.current){
+      cv.imshow(convertedCanvasRef.current, dst);
+    }
+  }
+
+}
+
+// これはレシートのノイズ除去に使えるかも
+const smoothingBirateralFilter = () => {
+  if(canvasRef.current){
+    const src: Mat =  cv.imread(canvasRef.current);
+
+    let dst = new cv.Mat();
+    cv.cvtColor(src, src, cv.COLOR_RGBA2RGB, 0);
+    // You can try more different parameters
+    cv.bilateralFilter(src, dst, 50, 155, 155, cv.BORDER_DEFAULT);
     if(convertedCanvasRef.current){
       cv.imshow(convertedCanvasRef.current, dst);
     }
