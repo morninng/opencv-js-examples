@@ -51,7 +51,8 @@ export function ImageProcessing() {
             // inRangeColor()
             // resizeImage()
             // affineTransition()
-            affineTransitionRotate()
+            // affineTransitionRotate()
+            affineTransform()
 
           }, 100);
         }
@@ -138,8 +139,23 @@ export function ImageProcessing() {
         cv.imshow(convertedCanvasRef.current, dst);
       }
       src.delete(); dst.delete(); M.delete();
+    }
+  }
 
 
+  const affineTransform = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let dst = new cv.Mat();
+      let srcTri = cv.matFromArray(3, 1, cv.CV_32FC2, [0, 0, 0, 1, 1, 0]);
+      let dstTri = cv.matFromArray(3, 1, cv.CV_32FC2, [0.6, 0.2, 0.1, 1.3, 1.5, 0.3]);
+      let dsize = new cv.Size(src.rows, src.cols);
+      let M = cv.getAffineTransform(srcTri, dstTri) // 変換前と変換後の三角形の頂点座標からアフィン変換の変換行列を計算します
+      cv.warpAffine(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar()); // アフィン変換を適用
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+      src.delete(); dst.delete(); M.delete(); srcTri.delete(); dstTri.delete();
     }
   }
 
