@@ -6,7 +6,7 @@ const canvasSize = { w: 360, h: 240 };
 const logoSize = { w: 100, h: 100 };
 
 
-export function ImageThresholding() {
+export function ImageThresholding2() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const logoCanvasRef = useRef<HTMLCanvasElement>(null)
