@@ -6,6 +6,9 @@ import { ImageTrial } from "./mytest/image-trial";
 import { CoreBasicOperation } from "./mytest/core-basic-operation";
 import { ImageProcessing } from "./mytest/image-processing";
 import { ImageThresholding2 } from "./mytest/image-processing2";
+import { NameCard } from "./mytest/name-card";
+import { ImageProcessingContours } from "./mytest/image-processing-contours";
+
 function App() {
   return (
     <div className="App">
@@ -15,7 +18,9 @@ function App() {
       {/* <ImageTrial /> */}
       {/* <CoreBasicOperation /> */}
       {/* <ImageProcessing /> */}
-      <ImageThresholding2 />
+      {/* <ImageThresholding2 /> */}
+      {/* <NameCard /> */}
+      <ImageProcessingContours />
     </div>
   );
 }
