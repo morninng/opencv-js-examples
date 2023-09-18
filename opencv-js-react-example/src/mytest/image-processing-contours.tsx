@@ -42,12 +42,13 @@ export function ImageProcessingContours() {
       if(context){
         var img = new Image();
 
-        img.src = './english.jpg';
+        img.src = './meishi2.png';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
             // contourGettingStarted()
-            contourMoment()
+            // contourMoment()
+            contourArea()
 
           }, 100);
         }
@@ -76,8 +77,12 @@ export function ImageProcessingContours() {
       let thresholdMat = new cv.Mat();
 
       let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
       cv.cvtColor(src, coloredMat, cv.COLOR_RGBA2GRAY, 0);
-      cv.threshold(coloredMat, thresholdMat, 120, 200, cv.THRESH_BINARY);
+
+      cv.threshold(coloredMat, thresholdMat, 0, 255, cv.THRESH_OTSU);
+      // cv.threshold(coloredMat, thresholdMat, 10, 200, cv.THRESH_BINARY);
+      // cv.bitwise_not(thresholdMat, thresholdMat);
       let contours = new cv.MatVector();
       let hierarchy = new cv.Mat();
       cv.findContours(thresholdMat, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
@@ -111,6 +116,41 @@ export function ImageProcessingContours() {
         cv.imshow(convertedCanvasRef.current, dst);
       }
     }
+  }
+
+
+  const contourArea = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+      let coloredMat = new cv.Mat();
+      let thresholdMat = new cv.Mat();
+
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, coloredMat, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(coloredMat, thresholdMat, 177, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(thresholdMat, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+      const size = contours.size() as unknown as number
+      for (let i = 0; i < size; ++i) {
+        let contour = contours.get(i);
+        // You can try more different parameters
+        let area = cv.contourArea(contour, false);
+        console.log(`i ${i}} area ${area}} `)
+        if( 10 < area && area < 100 ){
+        // if(area > 4000  ){
+          let color = new cv.Scalar(255, 0, 0);
+          cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+        }
+      }
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+
+
+    }
+
   }
 
 

@@ -42,7 +42,7 @@ export function NameCard() {
       if(context){
         var img = new Image();
 
-        img.src = './english.jpg';
+        img.src = './meishi2.png';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
