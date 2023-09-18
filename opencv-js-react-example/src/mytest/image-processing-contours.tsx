@@ -46,7 +46,8 @@ export function ImageProcessingContours() {
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
-            contourGettingStarted()
+            // contourGettingStarted()
+            contourMoment()
 
           }, 100);
         }
@@ -71,13 +72,15 @@ export function ImageProcessingContours() {
   const contourGettingStarted = () => {
     if(canvasRef.current){
       const src: Mat =  cv.imread(canvasRef.current);
+      let coloredMat = new cv.Mat();
+      let thresholdMat = new cv.Mat();
 
       let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-      cv.threshold(src, src, 120, 200, cv.THRESH_BINARY);
+      cv.cvtColor(src, coloredMat, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(coloredMat, thresholdMat, 120, 200, cv.THRESH_BINARY);
       let contours = new cv.MatVector();
       let hierarchy = new cv.Mat();
-      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+      cv.findContours(thresholdMat, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
       const size = contours.size() as unknown as number
       for (let i = 0; i < size; ++i) {
           let color = new cv.Scalar(255, 0, 0);
@@ -89,7 +92,26 @@ export function ImageProcessingContours() {
     }
   }
 
+  const contourMoment = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
 
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+      let cnt = contours.get(0);
+      let Moments = cv.moments(cnt, true);
+      console.log(Moments);
+
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
 
 
   return (
