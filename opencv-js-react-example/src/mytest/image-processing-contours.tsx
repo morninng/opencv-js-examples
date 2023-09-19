@@ -42,13 +42,17 @@ export function ImageProcessingContours() {
       if(context){
         var img = new Image();
 
-        img.src = './meishi2.png';
+        // img.src = './meishi2.png';
+        // img.src = './meishi.jpeg';
+        img.src = './english.jpg';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
             // contourGettingStarted()
             // contourMoment()
-            contourArea()
+            // contourArea()
+            // contourPerimeter()
+            contourApproxPolyDP()
 
           }, 100);
         }
@@ -138,19 +142,58 @@ export function ImageProcessingContours() {
         // You can try more different parameters
         let area = cv.contourArea(contour, false);
         console.log(`i ${i}} area ${area}} `)
-        if( 10 < area && area < 100 ){
+        if( 400 < area && area < 1000 ){
         // if(area > 4000  ){
           let color = new cv.Scalar(255, 0, 0);
+
+          let perimeter = cv.arcLength(contour, true);
+          let boundingRect = cv.boundingRect(contour);
+          console.log("perimeter", perimeter)
+          console.log("boundingRect", boundingRect)
           cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
         }
       }
       if(convertedCanvasRef.current){
         cv.imshow(convertedCanvasRef.current, dst);
       }
-
-
     }
 
+  }
+
+
+
+  const contourApproxPolyDP = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(src, src, 100, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      let poly = new cv.MatVector();
+      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+      // approximates each contour to polygon
+
+      const size = contours.size() as unknown as number
+      for (let i = 0; i < size; ++i) {
+        let tmp = new cv.Mat();
+        let cnt = contours.get(i);
+        // You can try more different parameters
+        cv.approxPolyDP(cnt, tmp, 3, true);
+        poly.push_back(tmp);
+        cnt.delete(); tmp.delete();
+      }
+      // draw contours with random Scalar
+      for (let i = 0; i < size; ++i) {
+        let color = new cv.Scalar(255, 0, 0);
+        cv.drawContours(dst, poly, i, color, 1, 8, hierarchy, 0);
+      }
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
   }
 
 
