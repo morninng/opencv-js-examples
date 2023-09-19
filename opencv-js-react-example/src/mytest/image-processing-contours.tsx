@@ -42,9 +42,9 @@ export function ImageProcessingContours() {
       if(context){
         var img = new Image();
 
-        // img.src = './meishi2.png';
+        img.src = './meishi2.png';
         // img.src = './meishi.jpeg';
-        img.src = './english.jpg';
+        // img.src = './english.jpg';
         img.onload = function onImageLoad() {
           context.drawImage(img, 0, 0, canvasSize.w, canvasSize.h);
           setTimeout(()=>{
@@ -53,7 +53,9 @@ export function ImageProcessingContours() {
             // contourArea()
             // contourPerimeter()
             // contourApproxPolyDP()
-            contourConvertHull()
+            // contourConvertHull()
+            contourBoundingRect()
+            // contourCircle()
 
           }, 100);
         }
@@ -233,6 +235,78 @@ export function ImageProcessingContours() {
   }
 
 
+  const contourCircle = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+
+
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+      const size = contours.size() as unknown as number
+      for (let i = 0; i < size; ++i) {
+        let contour = contours.get(i);
+        // You can try more different parameters
+        let area = cv.contourArea(contour, false);
+        console.log(`i ${i}} area ${area}} `)
+        if( 400 < area && area < 1000 ){
+          console.log('ssssssss')
+
+      // @ts-ignore
+      let circle = cv.minEnclosingCircle(contour);
+      let contoursColor = new cv.Scalar(0, 255, 0);
+      let circleColor = new cv.Scalar(255, 0, 0);
+      cv.drawContours(dst, contours, i, contoursColor, 1, 8, hierarchy, 100);
+      // @ts-ignore
+      cv.circle(dst, circle.center, circle.radius, circleColor);
+        }
+      }
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
+
+
+  const contourBoundingRect = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+
+      let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+      cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+      const size = contours.size() as unknown as number
+      for (let i = 0; i < size; ++i) {
+        let contour = contours.get(i);
+        // You can try more different parameters
+        let area = cv.contourArea(contour, false);
+        console.log(`i ${i}} area ${area}} `)
+        if( 400 < area && area < 1000 ){
+
+          // @ts-ignore
+          let rect = cv.boundingRect(contour);
+          let contoursColor = new cv.Scalar(0, 255, 0);
+          let rectangleColor = new cv.Scalar(255, 0, 0);
+          let point1 = new cv.Point(rect.x, rect.y);
+          let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+          cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+          cv.drawContours(dst, contours, i, contoursColor, 1, 8, hierarchy, 100);
+        }
+      }
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
   return (
     <div>
     <br />
