@@ -54,8 +54,9 @@ export function ImageProcessingContours() {
             // contourPerimeter()
             // contourApproxPolyDP()
             // contourConvertHull()
-            contourBoundingRect()
+            // contourBoundingRect()
             // contourCircle()
+            contourFitLine()
 
           }, 100);
         }
@@ -307,6 +308,54 @@ export function ImageProcessingContours() {
       }
     }
   }
+
+
+  const contourFitLine = () => {
+    if(canvasRef.current){
+      const src: Mat =  cv.imread(canvasRef.current);
+
+
+
+let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+let contours = new cv.MatVector();
+let hierarchy = new cv.Mat();
+let line = new cv.Mat();
+cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+const size = contours.size() as unknown as number
+for (let i = 0; i < size; ++i) {
+  let contour = contours.get(i);
+  // You can try more different parameters
+  let area = cv.contourArea(contour, false);
+  console.log(`i ${i}} area ${area}} `)
+  if( 400 < area && area < 1000 ){
+
+
+// You can try more different parameters
+cv.fitLine(contour, line, cv.DIST_L2, 0, 0.01, 0.01);
+let contoursColor = new cv.Scalar(0, 255, 0);
+let lineColor = new cv.Scalar(255, 0, 0);
+cv.drawContours(dst, contours, i, contoursColor, 1, 8, hierarchy, 100);
+let vx = line.data32F[0];
+let vy = line.data32F[1];
+let x = line.data32F[2];
+let y = line.data32F[3];
+let lefty = Math.round((-x * vy / vx) + y);
+let righty = Math.round(((src.cols - x) * vy / vx) + y);
+let point1 = new cv.Point(src.cols - 1, righty);
+let point2 = new cv.Point(0, lefty);
+cv.line(dst, point1, point2, lineColor, 2, cv.LINE_AA, 0);
+  }
+}
+
+      if(convertedCanvasRef.current){
+        cv.imshow(convertedCanvasRef.current, dst);
+      }
+    }
+  }
+
   return (
     <div>
     <br />
