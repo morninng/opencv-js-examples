@@ -212,6 +212,7 @@ export function ImageProcessingContours() {
       let contours = new cv.MatVector();
       let hierarchy = new cv.Mat();
       let poly = new cv.MatVector();
+      let nonSquareMat = new cv.MatVector();
       cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
       // approximates each contour to polygon
 
@@ -221,9 +222,16 @@ export function ImageProcessingContours() {
         let cnt = contours.get(i);
         const area = cv.contourArea(cnt, false);
         // if ( 300 < area && area < 10000 ) {
-        if ( 10000 < area ) {
+        if ( 1 < area ) {
           cv.approxPolyDP(cnt, tmp, 3, true);
-          poly.push_back(tmp);
+          if (tmp.size().width === 1 && tmp.size().height === 4) {
+            poly.push_back(tmp);
+            console.log('square')
+          } else {
+            console.log('non square')
+            nonSquareMat.push_back(tmp);
+          }
+
         }
         // You can try more different parameters
 
@@ -235,6 +243,13 @@ export function ImageProcessingContours() {
         let color = new cv.Scalar(255, 0, 0);
         console.log('drawContours')
         cv.drawContours(dst, poly, i, color, 1, 8, hierarchy, 0);
+      }
+
+      const nonSquareSize = nonSquareMat.size() as unknown as number;
+      for (let i = 0; i < nonSquareSize; ++i) {
+        let greenColor = new cv.Scalar(0, 255, 0);
+        console.log('drawContours')
+        cv.drawContours(dst, nonSquareMat, i, greenColor, 1, 8, hierarchy, 0);
       }
 
       if(convertedCanvasRef.current){
