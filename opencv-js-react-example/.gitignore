@@ -11,6 +11,9 @@
 # production
 /build
 
+/public/receipt2.png
+/public/logo.png
+
 # misc
 .DS_Store
 .env.local
